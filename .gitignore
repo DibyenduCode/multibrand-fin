@@ -1,0 +1,16 @@
+# Environment and Uploads
+uploads/*
+!uploads/.gitkeep
+
+# IDEs & System Files
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+php.ini
+.user.ini
+
+# Compressed backups
+*.zip
+*.tar.gz
