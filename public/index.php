@@ -99,6 +99,8 @@ if ($path === '/' || $path === '/login') {
     FixedExpenseController::delete((int)$matches[1]);
 } elseif (preg_match('#^/fixed-expenses/([0-9]+)/pay$#', $path, $matches) && $method === 'POST') {
     FixedExpenseController::pay((int)$matches[1]);
+} elseif ($path === '/fixed-expenses/send-notifications' && $method === 'POST') {
+    FixedExpenseController::sendEmailNotifications();
 } elseif ($path === '/bank-accounts') {
     BankAccountController::index();
 } elseif ($path === '/bank-accounts/create') {
@@ -169,6 +171,10 @@ if ($path === '/' || $path === '/login') {
     ProfileController::index();
 } elseif ($path === '/profile/update' && $method === 'POST') {
     ProfileController::update();
+} elseif ($path === '/settings/smtp' && $method === 'POST') {
+    SettingController::updateSmtp();
+} elseif ($path === '/settings/smtp-test' && $method === 'POST') {
+    SettingController::testSmtp();
 } elseif ($path === '/settings') {
     if ($method === 'POST') {
         SettingController::update();

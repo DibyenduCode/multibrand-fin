@@ -239,4 +239,45 @@ class FixedExpenseController {
         header('Location: ' . $redirectTo);
         exit;
     }
+
+    public static function sendEmailNotifications(): void {
+        Auth::requireWriteAccess();
+
+        $redirectTo = $_POST['redirect_to'] ?? ($_SERVER['HTTP_REFERER'] ?? (BASE_URL . '/fixed-expenses'));
+
+        if (!Security::verifyCsrf()) {
+            Flash::error("Invalid CSRF token.");
+            header('Location: ' . $redirectTo);
+            exit;
+        }
+
+        $brandId = !empty($_POST['brand_id']) ? (int)$_POST['brand_id'] : 0;
+
+        if ($brandId > 0) {
+            Auth::authorizeBrandModification($brandId);
+            $res = FixedExpense::sendNotificationsForBrand($brandId);
+            if ($res['success']) {
+                Flash::success($res['message']);
+            } else {
+                Flash::error($res['message']);
+            }
+        } else {
+            if (Auth::isSuperAdmin()) {
+                $res = FixedExpense::sendNotificationsForAllBrands();
+            } else {
+                $userBrandIds = Auth::userBrandIds();
+                $res = FixedExpense::sendNotificationsForAllBrands($userBrandIds);
+            }
+
+            if (($res['total_sent'] ?? 0) > 0) {
+                Flash::success("Dispatched fixed expense email notifications to brand admins. Total emails sent: " . $res['total_sent'] . ".");
+            } else {
+                Flash::info("Email notification run completed. No pending expenses or no recipient emails found.");
+            }
+        }
+
+        header('Location: ' . $redirectTo);
+        exit;
+    }
 }
+

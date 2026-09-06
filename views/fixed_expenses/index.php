@@ -39,6 +39,16 @@ foreach ($fixedExpenses as $fe) {
                 </form>
 
                 <?php if (!Auth::isManager()): ?>
+                    <form action="<?= BASE_URL ?>/fixed-expenses/send-notifications" method="POST" class="inline-block" onsubmit="return confirm('Send email notification reminders for pending fixed expenses to brand admin email address(es)?')">
+                        <?= Security::csrfField() ?>
+                        <input type="hidden" name="brand_id" value="<?= e($selectedBrandId) ?>">
+                        <input type="hidden" name="redirect_to" value="<?= e($_SERVER['REQUEST_URI']) ?>">
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Send Email Reminders</span>
+                        </button>
+                    </form>
+
                     <a href="<?= BASE_URL ?>/fixed-expenses/create" class="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
                         <i class="fa-solid fa-plus"></i>
                         <span>Add Fixed Expense</span>
@@ -46,6 +56,7 @@ foreach ($fixedExpenses as $fe) {
                 <?php endif; ?>
             </div>
         </div>
+
 
         <?php if (!Auth::isSuperAdmin() && !empty($feNotifications) && $feNotifications['total_pending_count'] > 0): ?>
             <!-- FIXED EXPENSE NOTIFICATION BANNER -->
