@@ -6,6 +6,7 @@ require_once __DIR__ . '/../app/Helpers/Auth.php';
 require_once __DIR__ . '/../app/Helpers/Format.php';
 require_once __DIR__ . '/../app/Helpers/Flash.php';
 require_once __DIR__ . '/../app/Helpers/Pagination.php';
+require_once __DIR__ . '/../app/Helpers/CsvExporter.php';
 
 // Controllers
 require_once __DIR__ . '/../app/Controllers/AuthController.php';

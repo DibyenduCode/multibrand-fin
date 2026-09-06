@@ -54,6 +54,28 @@ class TransactionController {
             }
         }
 
+        if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+            $exportTransactions = Transaction::all($filters);
+            $headers = ['Transaction ID', 'Date', 'Brand', 'Type', 'Category', 'Purpose / Details', 'Bank Account', 'Account Number', 'Amount (INR)', 'Note', 'Recorded By'];
+            $rows = [];
+            foreach ($exportTransactions as $t) {
+                $rows[] = [
+                    'id' => $t['id'],
+                    'date' => date('Y-m-d', strtotime($t['transaction_date'])),
+                    'brand' => $t['brand_name'] ?? 'N/A',
+                    'type' => strtoupper(str_replace('_', ' ', $t['type'])),
+                    'category' => $t['category'] ?? 'N/A',
+                    'purpose' => $t['purpose'] ?? '',
+                    'bank_name' => $t['bank_name'] ?? 'N/A',
+                    'account_number' => $t['account_number'] ?? 'N/A',
+                    'amount' => number_format((float)$t['amount'], 2, '.', ''),
+                    'note' => $t['note'] ?? '',
+                    'recorded_by' => $t['created_by_name'] ?? 'N/A'
+                ];
+            }
+            CsvExporter::download('transactions_export_' . date('Y-m-d') . '.csv', $headers, $rows);
+        }
+
         $totalItems = Transaction::count($filters);
         $paginationParams = Pagination::getParams($totalItems, 10);
 
@@ -65,6 +87,7 @@ class TransactionController {
 
         require_once __DIR__ . '/../../views/transactions/index.php';
     }
+
 
     public static function edit(int $id): void {
         Auth::requireWriteAccess();

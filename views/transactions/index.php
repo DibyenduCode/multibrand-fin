@@ -16,8 +16,17 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                 <p class="text-xs text-slate-500">View detailed financial logs for income, expenses, loans, and repayments.</p>
             </div>
 
-            <?php if (!Auth::isManager()): ?>
-                <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2">
+                <?php
+                $exportQueryParams = $_GET;
+                $exportQueryParams['export'] = 'csv';
+                $csvExportUrl = BASE_URL . '/transactions?' . http_build_query($exportQueryParams);
+                ?>
+                <a href="<?= e($csvExportUrl) ?>" class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
+                    <i class="fa-solid fa-file-csv text-sm"></i>
+                    <span>Export CSV</span>
+                </a>
+                <?php if (!Auth::isManager()): ?>
                     <a href="<?= BASE_URL ?>/money-in/create" class="inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
                         <i class="fa-solid fa-plus"></i>
                         <span>Money In</span>
@@ -26,8 +35,9 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                         <i class="fa-solid fa-minus"></i>
                         <span>Expense</span>
                     </a>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
+
         </div>
 
         <!-- FILTER BAR CARD -->
