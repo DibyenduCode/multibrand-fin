@@ -1,7 +1,7 @@
 {
-  "name": "Multi-Brand Finance System",
-  "short_name": "MB Finance",
-  "description": "Multi-Brand Financial Management & Cash Flow Audit System",
+  "name": "Biswas Co. Financial System",
+  "short_name": "Biswas Fin",
+  "description": "Biswas Company Multi-Brand Financial Management & Audit System",
   "start_url": "./dashboard",
   "scope": "./",
   "display": "standalone",
