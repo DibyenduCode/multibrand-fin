@@ -17,12 +17,16 @@ require_once __DIR__ . '/../layouts/sidebar.php';
             <a href="<?= BASE_URL ?>/reports/loans" class="py-2.5 px-4 text-slate-500 hover:text-slate-700">Inter-Brand Loans Report</a>
         </div>
 
-        <!-- ENTIRE BUSINESS GROUP TOTAL FUND HIGHLIGHT CARD -->
+        <!-- FINANCIAL HIGHLIGHT CARD -->
         <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-6">
                 <div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-400 block mb-1">ENTIRE BUSINESS GROUP FINANCIAL SUMMARY</span>
-                    <h2 class="text-sm font-medium text-slate-300">TOTAL GROUP COMBINED FUNDS (AVAILABLE CASH)</h2>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-400 block mb-1">
+                        ENTIRE BUSINESS GROUP FINANCIAL SUMMARY
+                    </span>
+                    <h2 class="text-sm font-medium text-slate-300">
+                        TOTAL GROUP COMBINED FUNDS (AVAILABLE CASH)
+                    </h2>
                     <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mt-1">
                         <?= Format::currency($groupTotals['available_money']) ?>
                     </div>
@@ -36,13 +40,13 @@ require_once __DIR__ . '/../layouts/sidebar.php';
             <!-- Group Financial Metrics Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-slate-800/60 backdrop-blur-xs rounded-xl p-4 border border-slate-700/50">
-                    <div class="text-xs font-medium text-slate-400 mb-1">TOTAL GROUP INCOME</div>
+                    <div class="text-xs font-medium text-slate-400 mb-1">TOTAL INCOME</div>
                     <div class="text-lg sm:text-xl font-bold text-emerald-400">
                         <?= Format::currency($groupTotals['total_income']) ?>
                     </div>
                 </div>
                 <div class="bg-slate-800/60 backdrop-blur-xs rounded-xl p-4 border border-slate-700/50">
-                    <div class="text-xs font-medium text-slate-400 mb-1">TOTAL GROUP EXPENSES</div>
+                    <div class="text-xs font-medium text-slate-400 mb-1">TOTAL EXPENSES</div>
                     <div class="text-lg sm:text-xl font-bold text-rose-400">
                         <?= Format::currency($groupTotals['total_expenses']) ?>
                     </div>

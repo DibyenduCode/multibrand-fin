@@ -2,6 +2,10 @@
 $pageTitle = 'Add Fixed Monthly Expense';
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/sidebar.php';
+
+$currentDay = (int)date('j');
+$defaultDueDay = 1;
+$defaultStartMonth = ($currentDay > $defaultDueDay) ? date('Y-m', strtotime('first day of next month')) : date('Y-m');
 ?>
 
 <div class="flex-1 flex flex-col min-w-0 bg-slate-50">
@@ -53,7 +57,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
                         <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Expense Category *</label>
                         <select id="category" name="category" required
@@ -65,8 +69,14 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     </div>
 
                     <div>
-                        <label for="due_day" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Due Day of Month (1 - 31) *</label>
-                        <input type="number" min="1" max="31" id="due_day" name="due_day" value="1" required
+                        <label for="due_day" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Due Day of Month *</label>
+                        <input type="number" min="1" max="31" id="due_day" name="due_day" value="1" onchange="autoAdjustStartMonth()" oninput="autoAdjustStartMonth()" required
+                               class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label for="start_month" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">First Due Month *</label>
+                        <input type="month" id="start_month" name="start_month" value="<?= $defaultStartMonth ?>" required
                                class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none">
                     </div>
                 </div>
@@ -100,5 +110,25 @@ require_once __DIR__ . '/../layouts/sidebar.php';
         </div>
     </main>
 </div>
+
+<script>
+function autoAdjustStartMonth() {
+    const dueDay = parseInt(document.getElementById('due_day').value) || 1;
+    const today = new Date();
+    const currentDay = today.getDate();
+    const startMonthInput = document.getElementById('start_month');
+
+    if (currentDay > dueDay) {
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        const yyyy = nextMonth.getFullYear();
+        const mm = String(nextMonth.getMonth() + 1).padStart(2, '0');
+        startMonthInput.value = `${yyyy}-${mm}`;
+    } else {
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        startMonthInput.value = `${yyyy}-${mm}`;
+    }
+}
+</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

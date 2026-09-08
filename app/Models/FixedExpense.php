@@ -5,18 +5,44 @@ require_once __DIR__ . '/Setting.php';
 
 class FixedExpense {
 
+    private static bool $migrationChecked = false;
+
+    public static function ensureStartMonthColumn(): void {
+        if (self::$migrationChecked) return;
+        self::$migrationChecked = true;
+        try {
+            $db = Database::getConnection();
+            $db->exec("ALTER TABLE fixed_expenses ADD COLUMN IF NOT EXISTS start_month VARCHAR(7) DEFAULT NULL AFTER due_day");
+        } catch (Throwable $e) {
+            // Ignore if column exists or fails gracefully
+        }
+    }
+
+    public static function calculateDefaultStartMonth(int $dueDay): string {
+        $currentDay = (int)date('j');
+        if ($currentDay > $dueDay) {
+            return date('Y-m', strtotime('first day of next month'));
+        }
+        return date('Y-m');
+    }
+
     public static function create(array $data): int {
+        self::ensureStartMonthColumn();
+        $dueDay = max(1, min(31, (int)($data['due_day'] ?? 1)));
+        $startMonth = !empty($data['start_month']) ? trim($data['start_month']) : self::calculateDefaultStartMonth($dueDay);
+
         $db = Database::getConnection();
         $stmt = $db->prepare("INSERT INTO fixed_expenses 
-            (brand_id, bank_account_id, title, amount, category, due_day, status, note, created_by) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (brand_id, bank_account_id, title, amount, category, due_day, start_month, status, note, created_by) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['brand_id'],
             $data['bank_account_id'],
             $data['title'],
             $data['amount'],
             $data['category'] ?? 'Rent',
-            $data['due_day'] ?? 1,
+            $dueDay,
+            $startMonth,
             $data['status'] ?? 'active',
             $data['note'] ?? null,
             $data['created_by']
@@ -25,9 +51,13 @@ class FixedExpense {
     }
 
     public static function update(int $id, array $data): bool {
+        self::ensureStartMonthColumn();
+        $dueDay = max(1, min(31, (int)($data['due_day'] ?? 1)));
+        $startMonth = !empty($data['start_month']) ? trim($data['start_month']) : null;
+
         $db = Database::getConnection();
         $stmt = $db->prepare("UPDATE fixed_expenses SET 
-            brand_id = ?, bank_account_id = ?, title = ?, amount = ?, category = ?, due_day = ?, status = ?, note = ? 
+            brand_id = ?, bank_account_id = ?, title = ?, amount = ?, category = ?, due_day = ?, start_month = ?, status = ?, note = ? 
             WHERE id = ?");
         return $stmt->execute([
             $data['brand_id'],
@@ -35,7 +65,8 @@ class FixedExpense {
             $data['title'],
             $data['amount'],
             $data['category'],
-            $data['due_day'],
+            $dueDay,
+            $startMonth,
             $data['status'] ?? 'active',
             $data['note'] ?? null,
             $id
@@ -49,6 +80,7 @@ class FixedExpense {
     }
 
     public static function find(int $id): ?array {
+        self::ensureStartMonthColumn();
         $db = Database::getConnection();
         $stmt = $db->prepare("SELECT fe.*, b.brand_name, ba.bank_name, ba.account_number 
             FROM fixed_expenses fe 
@@ -60,6 +92,7 @@ class FixedExpense {
     }
 
     public static function all(array $filters = []): array {
+        self::ensureStartMonthColumn();
         $db = Database::getConnection();
         $sql = "SELECT fe.*, b.brand_name, ba.bank_name, ba.account_number, u.name as created_by_name 
                 FROM fixed_expenses fe 
@@ -90,16 +123,71 @@ class FixedExpense {
         $stmt->execute($params);
         $expenses = $stmt->fetchAll();
 
+        $currentMonth = date('Y-m');
+        $currentDay = (int)date('j');
         $currentMonthStart = date('Y-m-01');
         $currentMonthEnd = date('Y-m-t');
 
         foreach ($expenses as &$exp) {
+            $dueDay = (int)$exp['due_day'];
+
+            // Determine effective start month
+            if (!empty($exp['start_month'])) {
+                $effectiveStartMonth = $exp['start_month'];
+            } else {
+                // Legacy records fallback logic
+                if (!empty($exp['created_at'])) {
+                    $createdMonth = date('Y-m', strtotime($exp['created_at']));
+                    $createdDay = (int)date('j', strtotime($exp['created_at']));
+                    if ($createdMonth === $currentMonth && $createdDay > $dueDay) {
+                        $effectiveStartMonth = date('Y-m', strtotime('first day of next month', strtotime($exp['created_at'])));
+                    } else {
+                        $effectiveStartMonth = $createdMonth;
+                    }
+                } else {
+                    $effectiveStartMonth = $currentMonth;
+                }
+            }
+            $exp['effective_start_month'] = $effectiveStartMonth;
+
             // Check if paid this month
             $chkStmt = $db->prepare("SELECT COUNT(*) FROM transactions 
                 WHERE brand_id = ? AND reference_type = 'fixed_expense' AND reference_id = ? 
                 AND transaction_date BETWEEN ? AND ?");
             $chkStmt->execute([$exp['brand_id'], $exp['id'], $currentMonthStart, $currentMonthEnd]);
-            $exp['is_paid_this_month'] = ((int)$chkStmt->fetchColumn()) > 0;
+            $isPaid = ((int)$chkStmt->fetchColumn()) > 0;
+            $exp['is_paid_this_month'] = $isPaid;
+
+            // Calculate human-friendly status badge & text
+            if ($effectiveStartMonth > $currentMonth) {
+                $targetMonthName = date('F', strtotime($effectiveStartMonth . '-01'));
+                $exp['status_type'] = 'future_start';
+                $exp['status_text'] = 'Pending for ' . $targetMonthName;
+                $exp['status_badge_class'] = 'bg-sky-100 text-sky-800';
+                $exp['status_icon'] = 'fa-solid fa-clock';
+            } elseif ($isPaid) {
+                $exp['status_type'] = 'paid';
+                $exp['status_text'] = 'Paid for ' . date('F');
+                $exp['status_badge_class'] = 'bg-emerald-100 text-emerald-800';
+                $exp['status_icon'] = 'fa-solid fa-circle-check';
+            } else {
+                if ($currentDay > $dueDay) {
+                    $exp['status_type'] = 'overdue';
+                    $exp['status_text'] = 'Overdue for ' . date('F');
+                    $exp['status_badge_class'] = 'bg-rose-100 text-rose-800';
+                    $exp['status_icon'] = 'fa-solid fa-triangle-exclamation';
+                } elseif ($currentDay === $dueDay) {
+                    $exp['status_type'] = 'due_today';
+                    $exp['status_text'] = 'Due Today (' . date('F') . ')';
+                    $exp['status_badge_class'] = 'bg-amber-100 text-amber-800';
+                    $exp['status_icon'] = 'fa-solid fa-clock';
+                } else {
+                    $exp['status_type'] = 'pending';
+                    $exp['status_text'] = 'Pending for ' . date('F');
+                    $exp['status_badge_class'] = 'bg-amber-100 text-amber-800';
+                    $exp['status_icon'] = 'fa-solid fa-clock';
+                }
+            }
         }
 
         return $expenses;
@@ -167,8 +255,9 @@ class FixedExpense {
         $dueSoonCount = 0;
         $totalPendingAmount = 0.0;
 
+        $currentMonth = date('Y-m');
         foreach ($allExpenses as $exp) {
-            if (!empty($exp['is_paid_this_month'])) {
+            if (!empty($exp['is_paid_this_month']) || (!empty($exp['effective_start_month']) && $exp['effective_start_month'] > $currentMonth)) {
                 continue;
             }
 
@@ -280,8 +369,9 @@ class FixedExpense {
         $dueSoonCount = 0;
         $totalPendingAmount = 0.0;
 
+        $currentMonth = date('Y-m');
         foreach ($allExpenses as $exp) {
-            if (!empty($exp['is_paid_this_month'])) {
+            if (!empty($exp['is_paid_this_month']) || (!empty($exp['effective_start_month']) && $exp['effective_start_month'] > $currentMonth)) {
                 continue;
             }
 

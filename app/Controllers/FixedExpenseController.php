@@ -83,6 +83,7 @@ class FixedExpenseController {
         $category = trim($_POST['category'] ?? 'Rent');
         $bankAccountId = (int)$_POST['bank_account_id'];
         $dueDay = (int)($_POST['due_day'] ?? 1);
+        $startMonth = !empty($_POST['start_month']) ? trim($_POST['start_month']) : null;
         $note = trim($_POST['note'] ?? '');
 
         if (empty($title) || $amount <= 0 || empty($bankAccountId)) {
@@ -98,6 +99,7 @@ class FixedExpenseController {
             'amount' => $amount,
             'category' => $category,
             'due_day' => max(1, min(31, $dueDay)),
+            'start_month' => $startMonth,
             'status' => $_POST['status'] ?? 'active',
             'note' => $note,
             'created_by' => Auth::id()
@@ -156,6 +158,7 @@ class FixedExpenseController {
         $category = trim($_POST['category'] ?? 'Rent');
         $bankAccountId = (int)$_POST['bank_account_id'];
         $dueDay = (int)($_POST['due_day'] ?? 1);
+        $startMonth = !empty($_POST['start_month']) ? trim($_POST['start_month']) : null;
         $note = trim($_POST['note'] ?? '');
 
         if (empty($title) || $amount <= 0 || empty($bankAccountId)) {
@@ -171,6 +174,7 @@ class FixedExpenseController {
             'amount' => $amount,
             'category' => $category,
             'due_day' => max(1, min(31, $dueDay)),
+            'start_month' => $startMonth,
             'status' => $_POST['status'] ?? 'active',
             'note' => $note
         ]);

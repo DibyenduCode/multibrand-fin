@@ -52,6 +52,32 @@
         background: #94a3b8;
       }
 
+      /* Hide scrollbar utility */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Mobile App Engine Styling (< 768px) */
+      @media (max-width: 767px) {
+        body {
+          padding-bottom: 72px !important;
+        }
+
+        /* Remove tap highlight rectangle on touch devices */
+        button, a, input, select, textarea {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Prevent unwanted page zoom on iOS Safari when tapping inputs */
+        input[type="text"], input[type="number"], input[type="date"], input[type="month"], input[type="email"], input[type="password"], select, textarea {
+          font-size: 16px !important;
+        }
+      }
+
       /* Custom SweetAlert2 Theme Styling */
       div.swal2-popup {
         font-family: 'Inter', sans-serif !important;

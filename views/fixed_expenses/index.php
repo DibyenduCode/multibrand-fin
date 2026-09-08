@@ -23,10 +23,10 @@ foreach ($fixedExpenses as $fe) {
                 <p class="text-xs text-slate-500">Manage fixed recurring obligations (Office Rent, Salaries, Servers, Internet) due every month.</p>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full md:w-auto">
                 <!-- Brand Filter -->
-                <form action="<?= BASE_URL ?>/fixed-expenses" method="GET" class="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-xs">
-                    <select name="brand_id" onchange="this.form.submit()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700">
+                <form action="<?= BASE_URL ?>/fixed-expenses" method="GET" class="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-xs w-full sm:w-auto">
+                    <select name="brand_id" onchange="this.form.submit()" class="w-full sm:w-auto px-3 py-2 sm:py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700">
                         <?php if (count($brands) > 1 || Auth::isSuperAdmin() || Auth::isManager()): ?>
                             <option value="">All Brands</option>
                         <?php endif; ?>
@@ -39,17 +39,17 @@ foreach ($fixedExpenses as $fe) {
                 </form>
 
                 <?php if (!Auth::isManager()): ?>
-                    <form action="<?= BASE_URL ?>/fixed-expenses/send-notifications" method="POST" class="inline-block" onsubmit="return confirm('Send email notification reminders for pending fixed expenses to brand admin email address(es)?')">
+                    <form action="<?= BASE_URL ?>/fixed-expenses/send-notifications" method="POST" class="w-full sm:w-auto inline-block" onsubmit="return confirm('Send email notification reminders for pending fixed expenses to brand admin email address(es)?')">
                         <?= Security::csrfField() ?>
                         <input type="hidden" name="brand_id" value="<?= e($selectedBrandId) ?>">
                         <input type="hidden" name="redirect_to" value="<?= e($_SERVER['REQUEST_URI']) ?>">
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
+                        <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 min-h-[42px]">
                             <i class="fa-solid fa-paper-plane"></i>
                             <span>Send Email Reminders</span>
                         </button>
                     </form>
 
-                    <a href="<?= BASE_URL ?>/fixed-expenses/create" class="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
+                    <a href="<?= BASE_URL ?>/fixed-expenses/create" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 min-h-[42px]">
                         <i class="fa-solid fa-plus"></i>
                         <span>Add Fixed Expense</span>
                     </a>
@@ -150,20 +150,14 @@ foreach ($fixedExpenses as $fe) {
                                         <?= (int)$fe['due_day'] ?><?= date('S', mktime(0,0,0,1,(int)$fe['due_day'])) ?> of month
                                     </td>
                                     <td class="px-5 py-4 text-center">
-                                        <?php if ($fe['is_paid_this_month']): ?>
-                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-                                                <i class="fa-solid fa-circle-check"></i> Paid for <?= date('F') ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
-                                                <i class="fa-solid fa-clock"></i> Pending for <?= date('F') ?>
-                                            </span>
-                                        <?php endif; ?>
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold <?= $fe['status_badge_class'] ?? 'bg-amber-100 text-amber-800' ?>">
+                                            <i class="<?= $fe['status_icon'] ?? 'fa-solid fa-clock' ?>"></i> <?= e($fe['status_text'] ?? 'Pending for ' . date('F')) ?>
+                                        </span>
                                     </td>
                                     <td class="px-5 py-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <!-- ONE-CLICK RECORD PAYMENT BUTTON -->
-                                            <?php if (!Auth::isManager() && Auth::canModifyBrandData((int)$fe['brand_id']) && !$fe['is_paid_this_month']): ?>
+                                            <?php if (!Auth::isManager() && Auth::canModifyBrandData((int)$fe['brand_id']) && !$fe['is_paid_this_month'] && ($fe['status_type'] ?? '') !== 'future_start'): ?>
                                                 <button type="button" onclick="openPayModal(<?= htmlspecialchars(json_encode($fe), ENT_QUOTES) ?>)" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition-colors inline-flex items-center gap-1.5">
                                                     <i class="fa-solid fa-check"></i> Pay Now
                                                 </button>

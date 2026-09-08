@@ -17,7 +17,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
             </div>
 
             <?php if (!Auth::isManager()): ?>
-                <a href="<?= BASE_URL ?>/bank-accounts/create" class="inline-flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
+                <a href="<?= BASE_URL ?>/bank-accounts/create" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 min-h-[42px]">
                     <i class="fa-solid fa-plus"></i>
                     <span>Add Bank Account</span>
                 </a>
@@ -59,11 +59,22 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                             <span class="text-[11px] font-semibold text-slate-400 block uppercase tracking-wider">Available Balance</span>
                             <span class="text-lg font-extrabold text-slate-900"><?= Format::currency($acc['current_balance']) ?></span>
                         </div>
-                        <?php if (Auth::canModifyBrandData((int)$acc['brand_id'])): ?>
-                            <a href="<?= BASE_URL ?>/bank-accounts/<?= $acc['id'] ?>/edit" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors">
-                                <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
-                            </a>
-                        <?php endif; ?>
+                        <div class="flex items-center gap-2">
+                            <?php if (Auth::canModifyBrandData((int)$acc['brand_id'])): ?>
+                                <a href="<?= BASE_URL ?>/bank-accounts/<?= $acc['id'] ?>/edit" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors">
+                                    <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if (Auth::isSuperAdmin()): ?>
+                                <form action="<?= BASE_URL ?>/bank-accounts/<?= $acc['id'] ?>/delete" method="POST" onsubmit="return confirmDeleteForm(event, this, 'Delete Bank Account?', 'Are you sure you want to delete bank account <?= e($acc['bank_name']) ?>?')">
+                                    <?= Security::csrfField() ?>
+                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition-colors">
+                                        <i class="fa-solid fa-trash mr-1"></i> Delete
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>

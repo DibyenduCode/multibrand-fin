@@ -24,27 +24,27 @@ $canModify = Auth::canModifyBrandData((int)$currentBrand['id']);
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <?php if (Auth::isSuperAdmin()): ?>
-                    <a href="<?= BASE_URL ?>/brands/<?= $currentBrand['id'] ?>/edit" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold">
+                    <a href="<?= BASE_URL ?>/brands/<?= $currentBrand['id'] ?>/edit" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold active:scale-95 transition-all min-h-[40px]">
                         <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Edit Profile &amp; Logo</span>
+                        <span>Edit Profile</span>
                     </a>
                 <?php endif; ?>
 
                 <?php if (Auth::isSuperAdmin() || Auth::isManager()): ?>
-                    <a href="<?= BASE_URL ?>/dashboard" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold">
+                    <a href="<?= BASE_URL ?>/dashboard" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold active:scale-95 transition-all min-h-[40px]">
                         <i class="fa-solid fa-arrow-left"></i>
-                        <span>Back to Group View</span>
+                        <span>Group View</span>
                     </a>
                 <?php endif; ?>
 
                 <?php if ($canModify): ?>
-                    <a href="<?= BASE_URL ?>/money-in/create?brand_id=<?= $currentBrand['id'] ?>" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs">
+                    <a href="<?= BASE_URL ?>/money-in/create?brand_id=<?= $currentBrand['id'] ?>" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs active:scale-95 transition-all min-h-[40px]">
                         <i class="fa-solid fa-plus"></i>
                         <span>Add Money In</span>
                     </a>
-                    <a href="<?= BASE_URL ?>/expenses/create?brand_id=<?= $currentBrand['id'] ?>" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-xs">
+                    <a href="<?= BASE_URL ?>/expenses/create?brand_id=<?= $currentBrand['id'] ?>" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-xs active:scale-95 transition-all min-h-[40px]">
                         <i class="fa-solid fa-minus"></i>
                         <span>Add Expense</span>
                     </a>

@@ -40,6 +40,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
             </form>
         </div>
 
+        <?php if (!empty($groupStats)): ?>
         <!-- ENTIRE BUSINESS GROUP TOTAL FUND BANNER -->
         <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 p-6 sm:p-8 rounded-2xl text-white shadow-lg border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -52,6 +53,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                 <div>This Month Money Out: <span class="font-bold text-rose-400"><?= Format::currency($groupStats['total_month_out']) ?></span></div>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- DAILY REPORT RESULTS -->
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-8 space-y-6">

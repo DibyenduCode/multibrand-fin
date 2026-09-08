@@ -20,14 +20,14 @@ if (!Auth::isSuperAdmin()) {
 }
 ?>
 <!-- Top Header Bar -->
-<header class="bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 h-16 shadow-xs">
-    <div class="flex items-center gap-4">
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center justify-between px-3 sm:px-6 h-16 shadow-xs">
+    <div class="flex items-center gap-3.5 min-w-0">
         <!-- Sidebar Toggle Mobile Button -->
-        <button onclick="toggleSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100">
-            <i class="fa-solid fa-bars text-lg"></i>
+        <button onclick="toggleSidebar()" class="md:hidden text-slate-600 hover:text-slate-900 p-2 rounded-xl hover:bg-slate-100 active:scale-95 transition-all">
+            <i class="fa-solid fa-bars-staggered text-lg"></i>
         </button>
         
-        <h1 class="text-lg font-bold text-slate-800 tracking-tight">
+        <h1 class="text-base sm:text-lg font-bold text-slate-800 tracking-tight truncate">
             <?= e($pageTitle ?? 'Financial Overview') ?>
         </h1>
     </div>

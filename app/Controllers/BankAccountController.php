@@ -129,4 +129,37 @@ class BankAccountController {
         header('Location: ' . BASE_URL . '/bank-accounts');
         exit;
     }
+
+    public static function delete(int $id): void {
+        Auth::requireLogin();
+
+        if (!Auth::isSuperAdmin()) {
+            Flash::error("Access denied. Only Super Admin can delete bank accounts.");
+            header('Location: ' . BASE_URL . '/bank-accounts');
+            exit;
+        }
+
+        if (!Security::verifyCsrf()) {
+            Flash::error("Invalid CSRF token.");
+            header('Location: ' . BASE_URL . '/bank-accounts');
+            exit;
+        }
+
+        $account = BankAccount::find($id);
+        if (!$account) {
+            Flash::error("Bank account not found.");
+            header('Location: ' . BASE_URL . '/bank-accounts');
+            exit;
+        }
+
+        try {
+            BankAccount::delete($id);
+            Flash::success("Bank Account '" . $account['bank_name'] . "' deleted successfully!");
+        } catch (Exception $e) {
+            Flash::error($e->getMessage());
+        }
+
+        header('Location: ' . BASE_URL . '/bank-accounts');
+        exit;
+    }
 }

@@ -114,4 +114,31 @@ class BankAccount {
 
         return $opening + $inflow - $outflow;
     }
+
+    public static function hasDependencies(int $bankAccountId): bool {
+        $db = Database::getConnection();
+        
+        $stmt = $db->prepare("SELECT COUNT(*) FROM transactions WHERE bank_account_id = ?");
+        $stmt->execute([$bankAccountId]);
+        if (((int)$stmt->fetchColumn()) > 0) return true;
+
+        $stmt = $db->prepare("SELECT COUNT(*) FROM fixed_expenses WHERE bank_account_id = ?");
+        $stmt->execute([$bankAccountId]);
+        if (((int)$stmt->fetchColumn()) > 0) return true;
+
+        $stmt = $db->prepare("SELECT COUNT(*) FROM inter_brand_loans WHERE lender_bank_account_id = ? OR borrower_bank_account_id = ?");
+        $stmt->execute([$bankAccountId, $bankAccountId]);
+        if (((int)$stmt->fetchColumn()) > 0) return true;
+
+        return false;
+    }
+
+    public static function delete(int $id): bool {
+        if (self::hasDependencies($id)) {
+            throw new Exception("Cannot delete bank account because it has linked transactions, fixed expenses, or loans. Consider setting its status to 'Inactive' instead.");
+        }
+        $db = Database::getConnection();
+        $stmt = $db->prepare("DELETE FROM bank_accounts WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
 }

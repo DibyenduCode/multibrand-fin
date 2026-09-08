@@ -53,7 +53,10 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<?php
+$startMonthValue = !empty($fixedExp['start_month']) ? $fixedExp['start_month'] : (!empty($fixedExp['effective_start_month']) ? $fixedExp['effective_start_month'] : date('Y-m'));
+?>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
                         <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Expense Category *</label>
                         <select id="category" name="category" required
@@ -65,8 +68,14 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     </div>
 
                     <div>
-                        <label for="due_day" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Due Day of Month (1 - 31) *</label>
+                        <label for="due_day" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Due Day of Month *</label>
                         <input type="number" min="1" max="31" id="due_day" name="due_day" value="<?= (int)$fixedExp['due_day'] ?>" required
+                               class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label for="start_month" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">First Due Month *</label>
+                        <input type="month" id="start_month" name="start_month" value="<?= e($startMonthValue) ?>" required
                                class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none">
                     </div>
                 </div>

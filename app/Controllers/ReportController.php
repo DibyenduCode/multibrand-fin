@@ -54,15 +54,17 @@ class ReportController {
 
         foreach ($brands as $b) {
             $r = Report::getBrandReport((int)$b['id']);
-            $reports[] = $r;
+            if (!empty($r)) {
+                $reports[] = $r;
 
-            $groupTotals['available_money'] += (float)$r['available_money'];
-            $groupTotals['total_income'] += (float)$r['total_income'];
-            $groupTotals['total_expenses'] += (float)$r['total_expenses'];
-            $groupTotals['loans_taken'] += (float)$r['loans_taken'];
-            $groupTotals['loans_given'] += (float)$r['loans_given'];
-            $groupTotals['outstanding_liability'] += (float)$r['outstanding_liability'];
-            $groupTotals['outstanding_receivable'] += (float)$r['outstanding_receivable'];
+                $groupTotals['available_money'] += (float)$r['available_money'];
+                $groupTotals['total_income'] += (float)$r['total_income'];
+                $groupTotals['total_expenses'] += (float)$r['total_expenses'];
+                $groupTotals['loans_taken'] += (float)$r['loans_taken'];
+                $groupTotals['loans_given'] += (float)$r['loans_given'];
+                $groupTotals['outstanding_liability'] += (float)$r['outstanding_liability'];
+                $groupTotals['outstanding_receivable'] += (float)$r['outstanding_receivable'];
+            }
         }
 
         require_once __DIR__ . '/../../views/reports/brand.php';

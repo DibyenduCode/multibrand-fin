@@ -26,10 +26,10 @@ if (Auth::isBrandUser()) {
 }
 ?>
 <!-- Sidebar Overlay for Mobile -->
-<div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 hidden md:hidden transition-opacity duration-300" onclick="toggleSidebar()"></div>
 
-<!-- Main Navigation Sidebar (Fixed on Mobile, Sticky on Desktop) -->
-<aside id="main-sidebar" class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col fixed inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen transition-transform duration-200 ease-in-out border-r border-slate-800">
+<!-- Main Navigation Sidebar (App Drawer on Mobile, Sticky Sidebar on Desktop) -->
+<aside id="main-sidebar" class="w-72 sm:w-80 md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col fixed inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen transition-transform duration-300 ease-in-out border-r border-slate-800 shadow-2xl md:shadow-none">
     <!-- Brand Logo / System Header -->
     <div class="h-16 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-800 flex-shrink-0">
         <a href="<?= BASE_URL ?>/dashboard" class="flex items-center gap-3">

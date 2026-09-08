@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `fixed_expenses` (
   `amount` DECIMAL(15,2) NOT NULL,
   `category` VARCHAR(100) NOT NULL DEFAULT 'Rent',
   `due_day` INT NOT NULL DEFAULT 1,
+  `start_month` VARCHAR(7) DEFAULT NULL,
   `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
   `note` TEXT DEFAULT NULL,
   `created_by` INT NOT NULL,

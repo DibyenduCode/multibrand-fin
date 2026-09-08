@@ -112,6 +112,8 @@ if ($path === '/' || $path === '/login') {
     BankAccountController::edit((int)$matches[1]);
 } elseif (preg_match('#^/bank-accounts/([0-9]+)$#', $path, $matches) && $method === 'POST') {
     BankAccountController::update((int)$matches[1]);
+} elseif (preg_match('#^/bank-accounts/([0-9]+)/delete$#', $path, $matches) && $method === 'POST') {
+    BankAccountController::delete((int)$matches[1]);
 } elseif ($path === '/transactions') {
     TransactionController::index();
 } elseif (preg_match('#^/transactions/([0-9]+)/edit$#', $path, $matches)) {
