@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Multi-Brand Finance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full flex items-center justify-center p-6 text-center">
+  <div class="max-w-md w-full bg-slate-800 border border-slate-700 p-8 rounded-3xl shadow-2xl space-y-6">
+    <div class="w-20 h-20 bg-rose-500/10 text-rose-400 rounded-full flex items-center justify-center mx-auto border border-rose-500/20">
+      <i class="fa-solid fa-wifi-slash text-3xl"></i>
+    </div>
+    
+    <div class="space-y-2">
+      <h1 class="text-2xl font-extrabold tracking-tight">You are Offline</h1>
+      <p class="text-slate-400 text-sm">Please check your internet connection to access live financial records and perform transactions.</p>
+    </div>
+
+    <button onclick="window.location.reload()" class="w-full py-3 px-6 bg-sky-600 hover:bg-sky-500 font-bold rounded-xl shadow-lg transition-all text-sm">
+      <i class="fa-solid fa-rotate-right mr-2"></i> Retry Connection
+    </button>
+  </div>
+</body>
+</html>

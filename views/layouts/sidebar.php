@@ -186,6 +186,11 @@ if (Auth::isBrandUser()) {
             <i class="fa-solid fa-user-gear w-5 text-center text-purple-400"></i>
             <span>My Profile</span>
         </a>
+        <!-- PWA Install Action Button (Strictly Mobile Drawer Only: md:hidden) -->
+        <button type="button" onclick="triggerPwaInstall()" id="pwa-sidebar-install-btn" class="w-full md:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sky-400 hover:bg-slate-800/80 transition-colors text-left">
+            <i class="fa-solid fa-mobile-screen-button w-5 text-center text-sky-400"></i>
+            <span>Install PWA Mobile App</span>
+        </button>
     </nav>
 
     <!-- Sidebar Footer User Profile & Logout -->

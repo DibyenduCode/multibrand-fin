@@ -60,6 +60,71 @@ function toggleSidebar() {
         document.body.style.overflow = '';
     }
 }
+
+// Progressive Web App (PWA) Mobile Integration Engine
+let deferredPwaPrompt = null;
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('<?= BASE_URL ?>/sw.js')
+            .then((reg) => {
+                console.log('PWA Service Worker registered successfully:', reg.scope);
+            })
+            .catch((err) => {
+                console.warn('PWA Service Worker registration failed:', err);
+            });
+    });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPwaPrompt = e;
+
+    // Show topbar install button strictly on mobile (< 768px)
+    if (window.innerWidth < 768) {
+        const topbarBtn = document.getElementById('pwa-topbar-install-btn');
+        if (topbarBtn) {
+            topbarBtn.classList.remove('hidden');
+            topbarBtn.classList.add('flex');
+        }
+    }
+});
+
+function triggerPwaInstall() {
+    if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                SwalToast.fire({
+                    icon: 'success',
+                    title: 'App Added to Home Screen!'
+                });
+            }
+            deferredPwaPrompt = null;
+        });
+    } else if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+        SwalToast.fire({
+            icon: 'info',
+            title: 'PWA Mobile App is already installed!'
+        });
+    } else {
+        // iOS or fallback instructions
+        SwalTheme.fire({
+            title: '<i class="fa-solid fa-mobile-screen text-sky-500 text-3xl mb-2 block"></i> Install Mobile App',
+            html: `
+                <div class="text-left space-y-3 text-slate-600 text-xs">
+                    <p class="font-semibold text-slate-800">To install this app on your phone:</p>
+                    <ol class="list-decimal pl-4 space-y-1.5">
+                        <li>Tap the <strong class="text-slate-900"><i class="fa-solid fa-arrow-up-from-bracket text-sky-600"></i> Share</strong> button in your mobile browser.</li>
+                        <li>Scroll down and tap <strong class="text-slate-900"><i class="fa-regular fa-square-plus text-sky-600"></i> Add to Home Screen</strong>.</li>
+                        <li>Open the app directly from your home screen icon for full standalone app experience!</li>
+                    </ol>
+                </div>
+            `,
+            confirmButtonText: 'Got it!'
+        });
+    }
+}
 </script>
 </body>
 </html>

@@ -30,6 +30,12 @@ if (!Auth::isSuperAdmin()) {
         <h1 class="text-base sm:text-lg font-bold text-slate-800 tracking-tight truncate">
             <?= e($pageTitle ?? 'Financial Overview') ?>
         </h1>
+
+        <!-- PWA Install Button (Strictly Mobile Only: md:hidden) -->
+        <button id="pwa-topbar-install-btn" onclick="triggerPwaInstall()" class="hidden md:hidden items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-xs active:scale-95 transition-all">
+            <i class="fa-solid fa-cloud-arrow-down text-xs"></i>
+            <span class="hidden xs:inline">Install App</span>
+        </button>
     </div>
 
     <div class="flex items-center gap-3 sm:gap-4">
