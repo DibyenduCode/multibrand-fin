@@ -45,9 +45,10 @@ CREATE TABLE IF NOT EXISTS `user_brands` (
 CREATE TABLE IF NOT EXISTS `bank_accounts` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `brand_id` INT NOT NULL,
+  `account_type` ENUM('bank', 'cash') NOT NULL DEFAULT 'bank',
   `bank_name` VARCHAR(100) NOT NULL,
-  `account_holder_name` VARCHAR(100) NOT NULL,
-  `account_number` VARCHAR(100) NOT NULL,
+  `account_holder_name` VARCHAR(100) NULL DEFAULT 'Cash In Hand',
+  `account_number` VARCHAR(100) NULL DEFAULT 'CASH',
   `ifsc_code` VARCHAR(30) DEFAULT NULL,
   `opening_balance` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
   `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',

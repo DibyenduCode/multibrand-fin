@@ -40,6 +40,12 @@ $canModify = Auth::canModifyBrandData((int)$currentBrand['id']);
                 <?php endif; ?>
 
                 <?php if ($canModify): ?>
+                    <?php if (Auth::isBrandUser()): ?>
+                        <a href="<?= BASE_URL ?>/bank-transfers/create?brand_id=<?= $currentBrand['id'] ?>" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs active:scale-95 transition-all min-h-[40px]">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                            <span>Transfer</span>
+                        </a>
+                    <?php endif; ?>
                     <a href="<?= BASE_URL ?>/money-in/create?brand_id=<?= $currentBrand['id'] ?>" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs active:scale-95 transition-all min-h-[40px]">
                         <i class="fa-solid fa-plus"></i>
                         <span>Add Money In</span>
@@ -53,18 +59,37 @@ $canModify = Auth::canModifyBrandData((int)$currentBrand['id']);
         </div>
 
         <!-- 1. MAIN FINANCIAL CARD - CURRENT AVAILABLE MONEY -->
-        <div class="bg-gradient-to-r from-sky-900 via-sky-800 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-sky-800/50">
+        <div class="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
             <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 skew-x-12 pointer-events-none"></div>
             
-            <span class="text-xs font-semibold uppercase tracking-wider text-sky-300 block mb-1">Brand Liquid Cash Reserve</span>
-            <div class="text-sm font-medium text-slate-300">CURRENT AVAILABLE MONEY</div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-sky-400 block mb-1">Brand Liquid Reserves</span>
+            <div class="text-xs sm:text-sm font-medium text-slate-300">TOTAL AVAILABLE MONEY (BANK + HAND CASH)</div>
             <div class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mt-2">
                 <?= Format::currency($brandStats['available_money']) ?>
             </div>
-            <p class="text-xs text-sky-200/80 mt-2 flex items-center gap-1.5">
-                <i class="fa-solid fa-building-columns"></i>
-                <span>Combined real-time balance across <?= count($bankAccounts) ?> active bank account(s)</span>
-            </p>
+
+            <!-- Sub-Cards for Bank Reserves vs Hand Cash -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 pt-5 border-t border-white/10 max-w-2xl">
+                <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl backdrop-blur-xs border border-white/10">
+                    <div class="w-10 h-10 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">In Bank Accounts</span>
+                        <span class="text-lg font-extrabold text-white block leading-tight"><?= Format::currency($brandStats['bank_balance'] ?? 0.00) ?></span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl backdrop-blur-xs border border-white/10">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">In Hand Cash</span>
+                        <span class="text-lg font-extrabold text-emerald-300 block leading-tight"><?= Format::currency($brandStats['hand_cash_balance'] ?? 0.00) ?></span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- 2. MONTHLY FINANCIAL SUMMARY CARDS -->
@@ -254,16 +279,25 @@ $canModify = Auth::canModifyBrandData((int)$currentBrand['id']);
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <?php foreach ($bankAccounts as $acc): ?>
-                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-slate-300 transition-all">
+                <?php foreach ($bankAccounts as $acc): 
+                    $isCash = ($acc['account_type'] ?? 'bank') === 'cash';
+                ?>
+                    <div class="p-4 rounded-xl border <?= $isCash ? 'border-emerald-300 bg-emerald-50/50 ring-1 ring-emerald-100 shadow-xs' : 'border-slate-200 bg-slate-50/50 hover:border-slate-300' ?> transition-all">
                         <div class="flex items-center justify-between">
-                            <span class="text-sm font-bold text-slate-900"><?= e($acc['bank_name']) ?></span>
-                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-semibold uppercase">Active</span>
+                            <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid <?= $isCash ? 'fa-wallet text-emerald-600' : 'fa-building-columns text-slate-400' ?>"></i>
+                                <span><?= e($acc['bank_name']) ?></span>
+                            </span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full <?= $isCash ? 'bg-emerald-100 text-emerald-800 font-bold' : 'bg-sky-100 text-sky-800 font-semibold' ?> uppercase tracking-wider">
+                                <?= $isCash ? 'Hand Cash' : 'Bank' ?>
+                            </span>
                         </div>
-                        <p class="text-xs text-slate-500 mt-0.5">Acc: <?= Security::maskAccountNumber($acc['account_number']) ?></p>
-                        <div class="mt-3 pt-3 border-t border-slate-200/60 flex justify-between items-baseline">
+                        <p class="text-xs text-slate-500 mt-1">
+                            <?= $isCash ? 'Physical Cash in Hand' : 'Acc: ' . Security::maskAccountNumber($acc['account_number']) ?>
+                        </p>
+                        <div class="mt-3 pt-3 border-t <?= $isCash ? 'border-emerald-200/60' : 'border-slate-200/60' ?> flex justify-between items-baseline">
                             <span class="text-xs font-medium text-slate-500">Available:</span>
-                            <span class="text-lg font-extrabold text-slate-900"><?= Format::currency($acc['current_balance']) ?></span>
+                            <span class="text-lg font-extrabold <?= $isCash ? 'text-emerald-700' : 'text-slate-900' ?>"><?= Format::currency($acc['current_balance']) ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>

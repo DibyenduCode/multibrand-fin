@@ -25,6 +25,12 @@ class TransactionController {
 
         $filters = [
             'type' => $_GET['type'] ?? '',
+            'category' => $_GET['category'] ?? '',
+            'search' => trim($_GET['search'] ?? ''),
+            'bank_account_id' => !empty($_GET['bank_account_id']) ? (int)$_GET['bank_account_id'] : '',
+            'account_type' => $_GET['account_type'] ?? '',
+            'min_amount' => (isset($_GET['min_amount']) && $_GET['min_amount'] !== '') ? $_GET['min_amount'] : '',
+            'max_amount' => (isset($_GET['max_amount']) && $_GET['max_amount'] !== '') ? $_GET['max_amount'] : '',
             'date_range' => $_GET['date_range'] ?? '',
             'start_date' => $_GET['start_date'] ?? '',
             'end_date' => $_GET['end_date'] ?? '',
@@ -54,20 +60,33 @@ class TransactionController {
             }
         }
 
+        // Fetch bank accounts for filter dropdown based on context
+        if (!empty($filters['brand_id'])) {
+            $filterBankAccounts = BankAccount::getByBrand((int)$filters['brand_id']);
+        } elseif (Auth::isBrandUser()) {
+            $filterBankAccounts = BankAccount::getByBrands($userBrandIds);
+        } else {
+            $filterBankAccounts = BankAccount::all();
+        }
+
+        $categories = Transaction::getDistinctCategories();
+
         if (isset($_GET['export']) && $_GET['export'] === 'csv') {
             $exportTransactions = Transaction::all($filters);
-            $headers = ['Transaction ID', 'Date', 'Brand', 'Type', 'Category', 'Purpose / Details', 'Bank Account', 'Account Number', 'Amount (INR)', 'Note', 'Recorded By'];
+            $headers = ['Transaction ID', 'Date', 'Brand', 'Medium', 'Type', 'Category', 'Purpose / Details', 'Account Name', 'Account Number', 'Amount (INR)', 'Note', 'Recorded By'];
             $rows = [];
             foreach ($exportTransactions as $t) {
+                $isCash = ($t['account_type'] ?? 'bank') === 'cash';
                 $rows[] = [
                     'id' => $t['id'],
                     'date' => date('Y-m-d', strtotime($t['transaction_date'])),
                     'brand' => $t['brand_name'] ?? 'N/A',
+                    'medium' => $isCash ? 'Hand Cash' : 'Bank Account',
                     'type' => strtoupper(str_replace('_', ' ', $t['type'])),
                     'category' => $t['category'] ?? 'N/A',
                     'purpose' => $t['purpose'] ?? '',
                     'bank_name' => $t['bank_name'] ?? 'N/A',
-                    'account_number' => $t['account_number'] ?? 'N/A',
+                    'account_number' => $isCash ? 'CASH' : ($t['account_number'] ?? 'N/A'),
                     'amount' => number_format((float)$t['amount'], 2, '.', ''),
                     'note' => $t['note'] ?? '',
                     'recorded_by' => $t['created_by_name'] ?? 'N/A'
@@ -108,7 +127,7 @@ class TransactionController {
         }
 
         $bankAccounts = BankAccount::getByBrand((int)$transaction['brand_id'], true);
-        $categories = ['Money In', 'Marketing', 'Salary', 'Rent', 'Internet', 'Server', 'Software', 'Office', 'Travel', 'Food', 'Grocery', 'Stationery', 'Loan EMI', 'Domain Buy', 'Domain Renew', 'Utilities', 'Maintenance', 'Inter-Brand Loan', 'Loan Repayment', 'Other'];
+        $categories = ['Money In', 'Marketing', 'Salary', 'Rent', 'Internet', 'Server', 'Software', 'Office', 'Travel', 'Food', 'Grocery', 'Stationery', 'Loan EMI', 'Domain Buy', 'Domain Renew', 'Utilities', 'Maintenance', 'Inter-Brand Loan', 'Loan Repayment', 'Student Refund', 'Other'];
 
         require_once __DIR__ . '/../../views/transactions/edit.php';
     }

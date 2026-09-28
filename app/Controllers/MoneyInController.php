@@ -18,7 +18,9 @@ class MoneyInController {
         }
 
         $selectedBrandId = $_GET['brand_id'] ?? ($brands[0]['id'] ?? 0);
-        $bankAccounts = BankAccount::getByBrand((int)$selectedBrandId, true);
+        $allAccounts = BankAccount::getByBrand((int)$selectedBrandId, true);
+        $bankAccounts = array_values(array_filter($allAccounts, fn($a) => ($a['account_type'] ?? 'bank') === 'bank'));
+        $handCashAccount = BankAccount::getHandCashAccount((int)$selectedBrandId);
 
         require_once __DIR__ . '/../../views/money_in/create.php';
     }

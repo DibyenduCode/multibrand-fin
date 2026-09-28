@@ -85,23 +85,6 @@
           font-size: 16px !important;
         }
       }
-
-      /* Custom SweetAlert2 Theme Styling */
-      div.swal2-popup {
-        font-family: 'Inter', sans-serif !important;
-        border-radius: 1rem !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
-      }
-      div.swal2-title {
-        font-size: 1.125rem !important;
-        font-weight: 700 !important;
-        color: #0f172a !important;
-      }
-      div.swal2-html-container {
-        font-size: 0.875rem !important;
-        color: #475569 !important;
-      }
     </style>
     <script>
       // Global SweetAlert2 Theme Mixin
@@ -160,4 +143,5 @@
 </head>
 
 <body class="min-h-screen font-sans antialiased text-slate-900 bg-slate-50 selection:bg-sky-500 selection:text-white">
+
 <div class="min-h-screen flex flex-col md:flex-row">

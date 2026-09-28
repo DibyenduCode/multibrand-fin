@@ -26,6 +26,7 @@ require_once __DIR__ . '/../app/Controllers/BrandController.php';
 require_once __DIR__ . '/../app/Controllers/UserController.php';
 require_once __DIR__ . '/../app/Controllers/ProfileController.php';
 require_once __DIR__ . '/../app/Controllers/SettingController.php';
+require_once __DIR__ . '/../app/Controllers/BankTransferController.php';
 
 // Security Headers
 
@@ -114,6 +115,10 @@ if ($path === '/' || $path === '/login') {
     BankAccountController::update((int)$matches[1]);
 } elseif (preg_match('#^/bank-accounts/([0-9]+)/delete$#', $path, $matches) && $method === 'POST') {
     BankAccountController::delete((int)$matches[1]);
+} elseif ($path === '/bank-transfers/create' || $path === '/bank-transfers') {
+    BankTransferController::create();
+} elseif ($path === '/bank-transfers/store' && $method === 'POST') {
+    BankTransferController::store();
 } elseif ($path === '/transactions') {
     TransactionController::index();
 } elseif (preg_match('#^/transactions/([0-9]+)/edit$#', $path, $matches)) {

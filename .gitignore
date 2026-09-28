@@ -6,6 +6,8 @@ uploads/*
 .idea/
 .vscode/
 *.log
+error_log
+public/error_log
 .DS_Store
 Thumbs.db
 php.ini

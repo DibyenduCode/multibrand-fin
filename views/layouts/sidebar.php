@@ -128,6 +128,10 @@ if (Auth::isBrandUser()) {
                 <i class="fa-solid fa-building-columns w-5 text-center text-teal-400"></i>
                 <span>Bank Accounts</span>
             </a>
+            <a href="<?= BASE_URL ?>/bank-transfers/create" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors <?= isActive('/bank-transfers', $currentRoute) ?>">
+                <i class="fa-solid fa-arrow-right-arrow-left w-5 text-center text-cyan-400"></i>
+                <span>Bank Transfer</span>
+            </a>
             <a href="<?= BASE_URL ?>/loans" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors <?= isActive('/loans', $currentRoute) ?>">
                 <i class="fa-solid fa-hand-holding-dollar w-5 text-center text-amber-400"></i>
                 <span>Loans</span>

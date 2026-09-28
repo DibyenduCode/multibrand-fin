@@ -31,7 +31,13 @@ class Brand {
             $data['logo'] ?? null,
             $data['status'] ?? 'active'
         ]);
-        return (int)$db->lastInsertId();
+        $brandId = (int)$db->lastInsertId();
+
+        // Auto-provision default Hand Cash account for brand
+        require_once __DIR__ . '/BankAccount.php';
+        BankAccount::provisionDefaultCashAccount($brandId);
+
+        return $brandId;
     }
 
     public static function update(int $id, array $data): bool {
@@ -49,28 +55,44 @@ class Brand {
         ]);
     }
 
-    public static function getAvailableBalance(int $brandId): float {
+    public static function getBankBalance(int $brandId): float {
         $db = Database::getConnection();
-        
-        $stmt = $db->prepare("SELECT COALESCE(SUM(opening_balance), 0) FROM bank_accounts WHERE brand_id = ? AND status = 'active'");
+        $stmt = $db->prepare("SELECT id FROM bank_accounts WHERE brand_id = ? AND account_type = 'bank' AND status = 'active'");
         $stmt->execute([$brandId]);
-        $opening = (float)$stmt->fetchColumn();
+        $accountIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        $stmt = $db->prepare("SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE brand_id = ? AND type IN ('income', 'loan_received', 'loan_repayment_received')");
+        $total = 0.00;
+        require_once __DIR__ . '/BankAccount.php';
+        foreach ($accountIds as $accId) {
+            $total += BankAccount::getBalance((int)$accId);
+        }
+        return $total;
+    }
+
+    public static function getHandCashBalance(int $brandId): float {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT id FROM bank_accounts WHERE brand_id = ? AND account_type = 'cash' AND status = 'active'");
         $stmt->execute([$brandId]);
-        $inflow = (float)$stmt->fetchColumn();
+        $accountIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        $stmt = $db->prepare("SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE brand_id = ? AND type IN ('expense', 'loan_given', 'loan_repayment')");
-        $stmt->execute([$brandId]);
-        $outflow = (float)$stmt->fetchColumn();
+        $total = 0.00;
+        require_once __DIR__ . '/BankAccount.php';
+        foreach ($accountIds as $accId) {
+            $total += BankAccount::getBalance((int)$accId);
+        }
+        return $total;
+    }
 
-        return $opening + $inflow - $outflow;
+    public static function getAvailableBalance(int $brandId): float {
+        return self::getBankBalance($brandId) + self::getHandCashBalance($brandId);
     }
 
     public static function getBrandFinancialStats(int $brandId): array {
         $db = Database::getConnection();
 
-        $availableMoney = self::getAvailableBalance($brandId);
+        $bankBalance = self::getBankBalance($brandId);
+        $handCashBalance = self::getHandCashBalance($brandId);
+        $availableMoney = $bankBalance + $handCashBalance;
 
         $firstDayOfMonth = date('Y-m-01');
         $lastDayOfMonth = date('Y-m-t');
@@ -102,6 +124,8 @@ class Brand {
 
         return [
             'available_money' => $availableMoney,
+            'bank_balance' => $bankBalance,
+            'hand_cash_balance' => $handCashBalance,
             'month_money_in' => $monthMoneyIn,
             'month_money_out' => $monthMoneyOut,
             'receivable' => $receivable,
@@ -117,12 +141,16 @@ class Brand {
         $brands = self::all(true);
 
         $totalAvailable = 0;
+        $totalBank = 0;
+        $totalHandCash = 0;
         $totalMonthIn = 0;
         $totalMonthOut = 0;
 
         foreach ($brands as $brand) {
             $stats = self::getBrandFinancialStats((int)$brand['id']);
             $totalAvailable += $stats['available_money'];
+            $totalBank += $stats['bank_balance'];
+            $totalHandCash += $stats['hand_cash_balance'];
             $totalMonthIn += $stats['month_money_in'];
             $totalMonthOut += $stats['month_money_out'];
         }
@@ -132,6 +160,8 @@ class Brand {
 
         return [
             'total_available' => $totalAvailable,
+            'total_bank_balance' => $totalBank,
+            'total_hand_cash_balance' => $totalHandCash,
             'total_month_in' => $totalMonthIn,
             'total_month_out' => $totalMonthOut,
             'total_receivable' => $totalInternalLoansOutstanding,

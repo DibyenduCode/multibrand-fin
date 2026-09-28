@@ -30,7 +30,7 @@ if (php_sapi_name() === 'cli') {
 
 define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
-define('DB_NAME', 'multibrand_fin');
+define('DB_NAME', 'fin');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 

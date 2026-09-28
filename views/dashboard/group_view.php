@@ -37,6 +37,29 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                 <?php endif; ?>
             </div>
 
+            <!-- Sub-Cards for Group Bank Reserves vs Hand Cash -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 pb-6 border-b border-slate-700/60 max-w-xl">
+                <div class="flex items-center gap-3 bg-slate-800/60 p-3.5 rounded-xl backdrop-blur-xs border border-slate-700/50">
+                    <div class="w-10 h-10 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">In Bank Accounts</span>
+                        <span class="text-base font-extrabold text-white block leading-tight"><?= Format::currency($groupStats['total_bank_balance'] ?? 0.00) ?></span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 bg-slate-800/60 p-3.5 rounded-xl backdrop-blur-xs border border-slate-700/50">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">In Hand Cash</span>
+                        <span class="text-base font-extrabold text-emerald-300 block leading-tight"><?= Format::currency($groupStats['total_hand_cash_balance'] ?? 0.00) ?></span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Group Monthly Summary Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-slate-800/60 backdrop-blur-xs rounded-xl p-4 border border-slate-700/50">
@@ -112,8 +135,12 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-right font-bold text-slate-900">
-                                        <?= Format::currency($bo['available_money']) ?>
+                                    <td class="px-6 py-4 text-right">
+                                        <span class="font-bold text-slate-900 block"><?= Format::currency($bo['available_money']) ?></span>
+                                        <span class="text-[11px] text-slate-400 block mt-0.5">
+                                            Bank: <span class="font-semibold text-slate-600"><?= Format::currency($bo['bank_balance'] ?? 0) ?></span> &bull; 
+                                            Cash: <span class="font-semibold text-emerald-600"><?= Format::currency($bo['hand_cash_balance'] ?? 0) ?></span>
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 text-right font-semibold text-emerald-600">
                                         <?= Format::currency($bo['month_money_in']) ?>

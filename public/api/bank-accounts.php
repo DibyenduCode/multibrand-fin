@@ -17,13 +17,16 @@ if ($brandId <= 0) {
     exit;
 }
 
-$accounts = BankAccount::getByBrand($brandId, true);
+$type = !empty($_GET['type']) ? trim($_GET['type']) : null;
+$accounts = BankAccount::getByBrand($brandId, true, $type);
 $formatted = [];
 foreach ($accounts as $acc) {
+    $isCash = ($acc['account_type'] ?? 'bank') === 'cash';
     $formatted[] = [
         'id' => $acc['id'],
         'bank_name' => $acc['bank_name'],
-        'masked_account' => Security::maskAccountNumber($acc['account_number']),
+        'account_type' => $acc['account_type'] ?? 'bank',
+        'masked_account' => $isCash ? 'CASH' : Security::maskAccountNumber($acc['account_number']),
         'current_balance' => $acc['current_balance']
     ];
 }

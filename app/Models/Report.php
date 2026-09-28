@@ -77,7 +77,9 @@ class Report {
         $brand = Brand::find($brandId);
         if (!$brand) return [];
 
-        $availableMoney = Brand::getAvailableBalance($brandId);
+        $bankBalance = Brand::getBankBalance($brandId);
+        $handCashBalance = Brand::getHandCashBalance($brandId);
+        $availableMoney = $bankBalance + $handCashBalance;
 
         // Total Income
         $stmt = $db->prepare("SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE brand_id = ? AND type = 'income'");
@@ -112,6 +114,8 @@ class Report {
         return [
             'brand' => $brand,
             'available_money' => $availableMoney,
+            'bank_balance' => $bankBalance,
+            'hand_cash_balance' => $handCashBalance,
             'total_income' => $totalIncome,
             'total_expenses' => $totalExpenses,
             'loans_taken' => $loansTaken,

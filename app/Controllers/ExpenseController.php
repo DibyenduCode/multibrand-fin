@@ -18,8 +18,10 @@ class ExpenseController {
         }
 
         $selectedBrandId = $_GET['brand_id'] ?? ($brands[0]['id'] ?? 0);
-        $bankAccounts = BankAccount::getByBrand((int)$selectedBrandId, true);
-        $categories = ['Marketing', 'Salary', 'Rent', 'Internet', 'Server', 'Software', 'Office', 'Travel', 'Food', 'Grocery', 'Stationery', 'Loan EMI', 'Domain Buy', 'Domain Renew', 'Utilities', 'Maintenance', 'Other'];
+        $allAccounts = BankAccount::getByBrand((int)$selectedBrandId, true);
+        $bankAccounts = array_values(array_filter($allAccounts, fn($a) => ($a['account_type'] ?? 'bank') === 'bank'));
+        $handCashAccount = BankAccount::getHandCashAccount((int)$selectedBrandId);
+        $categories = ['Marketing', 'Salary', 'Rent', 'Internet', 'Server', 'Software', 'Office', 'Travel', 'Food', 'Grocery', 'Stationery', 'Loan EMI', 'Domain Buy', 'Domain Renew', 'Utilities', 'Maintenance', 'Student Refund', 'Other'];
 
         require_once __DIR__ . '/../../views/expenses/create.php';
     }
